@@ -1,0 +1,57 @@
+# Generated with Microsoft365DSC version 1.24.424.1
+# For additional information on how to use Microsoft365DSC, please visit https://aka.ms/M365DSC
+param (
+    [parameter()]
+    [System.Management.Automation.PSCredential]
+    $Credential
+)
+
+Configuration M365TenantConfig
+{
+    param (
+        [parameter()]
+        [System.Management.Automation.PSCredential]
+        $Credential
+    )
+
+    if ($null -eq $Credential)
+    {
+        <# Credentials #>
+        $Credscredential = Get-Credential -Message "Credentials"
+
+    }
+    else
+    {
+        $CredsCredential = $Credential
+    }
+
+    $OrganizationName = $CredsCredential.UserName.Split('@')[1]
+
+    Import-DscResource -ModuleName 'Microsoft365DSC' -ModuleVersion '1.24.424.1'
+
+    Node localhost
+    {
+        AADAuthorizationPolicy "AADAuthorizationPolicy"
+        {
+            AllowedToSignUpEmailBasedSubscriptions                  = $True; ### L3|egal 
+            AllowedToUseSSPR                                        = $True;
+            AllowEmailVerifiedUsersToJoinOrganization               = $False;
+            AllowInvitesFrom                                        = "everyone";
+            BlockMsolPowerShell                                     = $False;
+            Credential                                              = $Credscredential;
+            DefaultUserRoleAllowedToCreateApps                      = $False; ### L1|We <strong>recommend</strong> allowing call forwarding to phone lines because....
+            DefaultUserRoleAllowedToCreateSecurityGroups            = $True;
+            DefaultUserRoleAllowedToCreateTenants                   = $True;
+            DefaultUserRoleAllowedToReadBitlockerKeysForOwnedDevice = $True;
+            DefaultUserRoleAllowedToReadOtherUsers                  = $True;
+            Description                                             = "Used to manage authorization related settings across the company.";
+            DisplayName                                             = "Authorization Policy";
+            Ensure                                                  = "Present";
+            GuestUserRole                                           = "Guest";
+            IsSingleInstance                                        = "Yes";
+            PermissionGrantPolicyIdsAssignedToDefaultUserRole       = @("ManagePermissionGrantsForSelf.microsoft-user-default-legacy","ManagePermissionGrantsForOwnedResource.microsoft-dynamically-managed-permissions-for-team","ManagePermissionGrantsForOwnedResource.microsoft-dynamically-managed-permissions-for-chat");
+        }
+    }
+}
+
+M365TenantConfig -ConfigurationData .\ConfigurationData.psd1 -Credential $Credential
