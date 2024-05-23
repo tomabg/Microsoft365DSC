@@ -27,7 +27,7 @@ Configuration M365TenantConfig
 
     $OrganizationName = $CredsCredential.UserName.Split('@')[1]
 
-    Import-DscResource -ModuleName 'Microsoft365DSC' -ModuleVersion '1.24.515.2'
+    Import-DscResource -ModuleName 'Microsoft365DSC' -ModuleVersion '1.24.522.1'
 
     Node localhost
     {
